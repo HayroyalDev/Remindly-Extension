@@ -20,16 +20,24 @@ package com.blanyal.remindme;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,11 +55,12 @@ public class ReminderEditActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener{
 
     private Toolbar mToolbar;
-    private EditText mTitleText;
+    private EditText mTitleText, mDosageText;
     private TextView mDateText, mTimeText, mRepeatText, mRepeatNoText, mRepeatTypeText;
     private FloatingActionButton mFAB1;
     private FloatingActionButton mFAB2;
     private Switch mRepeatSwitch;
+    private ImageView mImageView;
     private String mTitle;
     private String mTime;
     private String mDate;
@@ -73,13 +82,26 @@ public class ReminderEditActivity extends AppCompatActivity implements
     public static final String EXTRA_REMINDER_ID = "Reminder_ID";
 
     // Values for orientation change
+    private String mImage;
+    private String mDosage;
+
+    // Values for orientation change
     private static final String KEY_TITLE = "title_key";
+    private static final String KEY_DOSAGE = "dosage_key";
     private static final String KEY_TIME = "time_key";
     private static final String KEY_DATE = "date_key";
     private static final String KEY_REPEAT = "repeat_key";
     private static final String KEY_REPEAT_NO = "repeat_no_key";
     private static final String KEY_REPEAT_TYPE = "repeat_type_key";
     private static final String KEY_ACTIVE = "active_key";
+    private static final String KEY_IMAGE = "image_key";
+
+
+    String TAG = "EDIT ACTIVITY";
+
+    private static final int PICK_IMAGE_VALUE = 2;
+    RelativeLayout rimage;
+
 
     // Constant values in milliseconds
     private static final long milMinute = 60000L;
@@ -97,6 +119,7 @@ public class ReminderEditActivity extends AppCompatActivity implements
         // Initialize Views
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mTitleText = (EditText) findViewById(R.id.reminder_title);
+        mDosageText = findViewById(R.id.set_dosage);
         mDateText = (TextView) findViewById(R.id.set_date);
         mTimeText = (TextView) findViewById(R.id.set_time);
         mRepeatText = (TextView) findViewById(R.id.set_repeat);
@@ -105,6 +128,21 @@ public class ReminderEditActivity extends AppCompatActivity implements
         mFAB1 = (FloatingActionButton) findViewById(R.id.starred1);
         mFAB2 = (FloatingActionButton) findViewById(R.id.starred2);
         mRepeatSwitch = (Switch) findViewById(R.id.repeat_switch);
+
+        mImageView = findViewById(R.id.selected_image);
+        rimage = findViewById(R.id.image_layout);
+        rimage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickImage();
+            }
+        });
+        mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickImage();
+            }
+        });
 
         // Setup Toolbar
         setSupportActionBar(mToolbar);
@@ -127,35 +165,68 @@ public class ReminderEditActivity extends AppCompatActivity implements
             public void afterTextChanged(Editable s) {}
         });
 
+        mDosageText.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mDosage = s.toString().trim();
+                mDosageText.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         // Get reminder id from intent
         mReceivedID = Integer.parseInt(getIntent().getStringExtra(EXTRA_REMINDER_ID));
 
         // Get reminder using reminder id
         rb = new ReminderDatabase(this);
         mReceivedReminder = rb.getReminder(mReceivedID);
+        Log.e("EDIT ACTIVITY", mReceivedReminder.toString());
 
         // Get values from reminder
         mTitle = mReceivedReminder.getTitle();
+        mDosage = mReceivedReminder.getDosage();
         mDate = mReceivedReminder.getDate();
         mTime = mReceivedReminder.getTime();
         mRepeat = mReceivedReminder.getRepeat();
         mRepeatNo = mReceivedReminder.getRepeatNo();
         mRepeatType = mReceivedReminder.getRepeatType();
         mActive = mReceivedReminder.getActive();
+        mImage = mReceivedReminder.getImage();
 
         // Setup TextViews using reminder values
         mTitleText.setText(mTitle);
+        mDosageText.setText(mDosage);
         mDateText.setText(mDate);
         mTimeText.setText(mTime);
         mRepeatNoText.setText(mRepeatNo);
         mRepeatTypeText.setText(mRepeatType);
         mRepeatText.setText("Every " + mRepeatNo + " " + mRepeatType + "(s)");
+        Bitmap bitmap = new ImageSaver(this).
+                setFileName(mImage).
+                setDirectoryName("images").
+                load();
+        mImageView.setImageBitmap(bitmap);
+        mImageView.setVisibility(View.VISIBLE);
 
         // To save state on device rotation
         if (savedInstanceState != null) {
             String savedTitle = savedInstanceState.getString(KEY_TITLE);
             mTitleText.setText(savedTitle);
             mTitle = savedTitle;
+
+            String savedDosage = savedInstanceState.getString(KEY_DOSAGE);
+            mDosageText.setText(savedDosage);
+            mDosage = savedDosage;
 
             String savedTime = savedInstanceState.getString(KEY_TIME);
             mTimeText.setText(savedTime);
@@ -178,6 +249,14 @@ public class ReminderEditActivity extends AppCompatActivity implements
             mRepeatType = savedRepeatType;
 
             mActive = savedInstanceState.getString(KEY_ACTIVE);
+
+            String savedImage = savedInstanceState.getString(KEY_IMAGE);
+            Bitmap bitmapp = new ImageSaver(this).
+                    setFileName(savedImage).
+                    setDirectoryName("images").
+                    load();
+            mImageView.setImageBitmap(bitmapp);
+            mImage = savedImage;
         }
 
         // Setup up active buttons
@@ -213,10 +292,18 @@ public class ReminderEditActivity extends AppCompatActivity implements
         mMinute = Integer.parseInt(mTimeSplit[1]);
     }
 
+    private void pickImage(){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_VALUE);
+    }
+
     // To save state on device rotation
     @Override
     protected void onSaveInstanceState (Bundle outState) {
         super.onSaveInstanceState(outState);
+
 
         outState.putCharSequence(KEY_TITLE, mTitleText.getText());
         outState.putCharSequence(KEY_TIME, mTimeText.getText());
@@ -225,10 +312,37 @@ public class ReminderEditActivity extends AppCompatActivity implements
         outState.putCharSequence(KEY_REPEAT_NO, mRepeatNoText.getText());
         outState.putCharSequence(KEY_REPEAT_TYPE, mRepeatTypeText.getText());
         outState.putCharSequence(KEY_ACTIVE, mActive);
+        outState.putCharSequence(KEY_DOSAGE, mDosageText.getText());
+        outState.putCharSequence(KEY_IMAGE, mImage);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_IMAGE_VALUE && data != null) {
+            //TODO: action
+            try{
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+                cursor.close();
+                ImageView imv = findViewById(R.id.selected_image);
+                imv.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                imv.setVisibility(View.VISIBLE);
+                String resName = getResources().getResourceEntryName(R.id.selected_image);
+                Toast.makeText(getApplicationContext(), "BBB"+resName,Toast.LENGTH_LONG).show();
+                mImage = resName;
+                new ImageSaver(this).
+                        setFileName(mImage).
+                        setDirectoryName("images").
+                        save(BitmapFactory.decodeFile(picturePath));
+            }catch(Exception ex){
+                Toast.makeText(this, " Unable to pick picture", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     // On clicking Time picker
@@ -374,12 +488,14 @@ public class ReminderEditActivity extends AppCompatActivity implements
     public void updateReminder(){
         // Set new values in the reminder
         mReceivedReminder.setTitle(mTitle);
+        mReceivedReminder.setDosage(mDosage);
         mReceivedReminder.setDate(mDate);
         mReceivedReminder.setTime(mTime);
         mReceivedReminder.setRepeat(mRepeat);
         mReceivedReminder.setRepeatNo(mRepeatNo);
         mReceivedReminder.setRepeatType(mRepeatType);
         mReceivedReminder.setActive(mActive);
+        mReceivedReminder.setImage(mImage);
 
         // Update reminder
         rb.updateReminder(mReceivedReminder);
@@ -454,6 +570,9 @@ public class ReminderEditActivity extends AppCompatActivity implements
 
                 if (mTitleText.getText().toString().length() == 0)
                     mTitleText.setError("Reminder Title cannot be blank!");
+
+                else if(mDosageText.getText().toString().length() == 0)
+                    mDosageText.setError("Dosage cannot be blank");
 
                 else {
                     updateReminder();

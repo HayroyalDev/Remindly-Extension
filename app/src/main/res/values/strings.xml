@@ -22,7 +22,7 @@
     <string name="title_activity_edit_reminder">Edit Reminder</string>
     <string name="title_activity_licenses">Licenses</string>
 
-    <string name="add_reminder">Reminder</string>
+    <string name="add_reminder">Medication Reminder</string>
     <string name="details">Details</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
@@ -499,5 +499,6 @@
                             Creative Commons may be contacted at creativecommons.org.</TT>\n\n\n
         <BIG><b>END OF LICENSES</b></BIG>
     </string>
+    <string name="image_type">Upload Image of Drug</string>
 
 </resources>

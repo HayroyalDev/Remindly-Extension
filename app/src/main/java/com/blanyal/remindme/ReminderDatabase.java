@@ -22,6 +22,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ public class ReminderDatabase extends SQLiteOpenHelper {
     private static final String KEY_REPEAT_NO = "repeat_no";
     private static final String KEY_REPEAT_TYPE = "repeat_type";
     private static final String KEY_ACTIVE = "active";
+    private static final String KEY_IMAGE = "image";
 
     public ReminderDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -65,7 +67,8 @@ public class ReminderDatabase extends SQLiteOpenHelper {
                 + KEY_REPEAT + " BOOLEAN,"
                 + KEY_REPEAT_NO + " INTEGER,"
                 + KEY_REPEAT_TYPE + " TEXT,"
-                + KEY_ACTIVE + " BOOLEAN" + ")";
+                + KEY_ACTIVE + " BOOLEAN,"
+                + KEY_IMAGE + " TEXT" + ")";
         db.execSQL(CREATE_REMINDERS_TABLE);
     }
 
@@ -94,6 +97,8 @@ public class ReminderDatabase extends SQLiteOpenHelper {
         values.put(KEY_REPEAT_NO , reminder.getRepeatNo());
         values.put(KEY_REPEAT_TYPE, reminder.getRepeatType());
         values.put(KEY_ACTIVE, reminder.getActive());
+        values.put(KEY_IMAGE, reminder.getImage());
+        Log.e("DataSaved", reminder.toString());
 
         // Inserting Row
         long ID = db.insert(TABLE_REMINDERS, null, values);
@@ -115,7 +120,8 @@ public class ReminderDatabase extends SQLiteOpenHelper {
                                 KEY_REPEAT,
                                 KEY_REPEAT_NO,
                                 KEY_REPEAT_TYPE,
-                                KEY_ACTIVE
+                                KEY_ACTIVE,
+                                KEY_IMAGE
                         }, KEY_ID + "=?",
 
                 new String[] {String.valueOf(id)}, null, null, null, null);
@@ -125,7 +131,7 @@ public class ReminderDatabase extends SQLiteOpenHelper {
 
         Reminder reminder = new Reminder(Integer.parseInt(cursor.getString(0)), cursor.getString(1),
                cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
-                cursor.getString(6), cursor.getString(7), cursor.getString(8));
+                cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getString(9));
 
         return reminder;
     }
@@ -146,13 +152,14 @@ public class ReminderDatabase extends SQLiteOpenHelper {
                 Reminder reminder = new Reminder();
                 reminder.setID(Integer.parseInt(cursor.getString(0)));
                 reminder.setTitle(cursor.getString(1));
-                reminder.setTitle(cursor.getString(2));
+                reminder.setDosage(cursor.getString(2));
                 reminder.setDate(cursor.getString(3));
                 reminder.setTime(cursor.getString(4));
                 reminder.setRepeat(cursor.getString(5));
                 reminder.setRepeatNo(cursor.getString(6));
                 reminder.setRepeatType(cursor.getString(7));
                 reminder.setActive(cursor.getString(8));
+                reminder.setImage(cursor.getString(9));
 
                 // Adding Reminders to list
                 reminderList.add(reminder);
@@ -176,12 +183,14 @@ public class ReminderDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_TITLE , reminder.getTitle());
+        values.put(KEY_DOSAGE , reminder.getDosage());
         values.put(KEY_DATE , reminder.getDate());
         values.put(KEY_TIME , reminder.getTime());
         values.put(KEY_REPEAT , reminder.getRepeat());
         values.put(KEY_REPEAT_NO , reminder.getRepeatNo());
         values.put(KEY_REPEAT_TYPE, reminder.getRepeatType());
         values.put(KEY_ACTIVE, reminder.getActive());
+        values.put(KEY_IMAGE, reminder.getImage());
 
         // Updating row
         return db.update(TABLE_REMINDERS, values, KEY_ID + "=?",

@@ -17,7 +17,9 @@
 
 package com.blanyal.remindme;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         // Create recycler view
         mList.setLayoutManager(getLayoutManager());
         registerForContextMenu(mList);
-        mAdapter = new SimpleAdapter();
+        mAdapter = new SimpleAdapter(this);
         mAdapter.setItemCount(getDefaultItemCount());
         mList.setAdapter(mAdapter);
 
@@ -256,9 +258,10 @@ public class MainActivity extends AppCompatActivity {
     // Adapter class for recycler view
     public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
         private ArrayList<ReminderItem> mItems;
-
-        public SimpleAdapter() {
+        private Context context;
+        public SimpleAdapter(Context  context) {
             mItems = new ArrayList<>();
+            this.context = context;
         }
 
         public void setItemCount(int count) {
@@ -294,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
             itemHolder.setReminderDateTime(item.mDateTime);
             itemHolder.setReminderRepeatInfo(item.mRepeat, item.mRepeatNo, item.mRepeatType);
             itemHolder.setActiveImage(item.mActive);
+            itemHolder.setThumbImage(item.mImage, item.mTitle);
         }
 
         @Override
@@ -304,19 +308,23 @@ public class MainActivity extends AppCompatActivity {
         // Class for recycler view items
         public  class ReminderItem {
             public String mTitle;
+            public String mDosage;
             public String mDateTime;
             public String mRepeat;
             public String mRepeatNo;
             public String mRepeatType;
             public String mActive;
+            public String mImage;
 
-            public ReminderItem(String Title, String DateTime, String Repeat, String RepeatNo, String RepeatType, String Active) {
+            public ReminderItem(String Title, String Dosage, String DateTime, String Repeat, String RepeatNo, String RepeatType, String Active, String Image) {
                 this.mTitle = Title;
+                this.mDosage = Dosage;
                 this.mDateTime = DateTime;
                 this.mRepeat = Repeat;
                 this.mRepeatNo = RepeatNo;
                 this.mRepeatType = RepeatType;
                 this.mActive = Active;
+                this.mImage = Image;
             }
         }
 
@@ -388,18 +396,6 @@ public class MainActivity extends AppCompatActivity {
             // Set reminder title view
             public void setReminderTitle(String title) {
                 mTitleText.setText(title);
-                String letter = "A";
-
-                if(title != null && !title.isEmpty()) {
-                    letter = title.substring(0, 1);
-                }
-
-                int color = mColorGenerator.getRandomColor();
-
-                // Create a circular icon consisting of  a random background colour and first letter of title
-                mDrawableBuilder = TextDrawable.builder()
-                        .buildRound(letter, color);
-                mThumbnailImage.setImageDrawable(mDrawableBuilder);
             }
 
             // Set date and time views
@@ -424,12 +420,35 @@ public class MainActivity extends AppCompatActivity {
                     mActiveImage.setImageResource(R.drawable.ic_notifications_off_grey600_24dp);
                 }
             }
+
+            public void setThumbImage(String thumbImage, String title) {
+                if(thumbImage == null){
+                    String letter = "A";
+
+                    if(title != null && !title.isEmpty()) {
+                        letter = title.substring(0, 1);
+                    }
+
+                    int color = mColorGenerator.getRandomColor();
+
+                    // Create a circular icon consisting of  a random background colour and first letter of title
+                    mDrawableBuilder = TextDrawable.builder()
+                            .buildRound(letter, color);
+                    mThumbnailImage.setImageDrawable(mDrawableBuilder);
+                }else{
+                    Bitmap bitmap = new ImageSaver(context).
+                            setFileName(thumbImage).
+                            setDirectoryName("images").
+                            load();
+                    mThumbnailImage.setImageBitmap(bitmap);
+                }
+            }
         }
 
-        // Generate random test data
-        public  ReminderItem generateDummyData() {
-            return new ReminderItem("1", "2", "3", "4", "5", "6");
-        }
+//        // Generate random test data
+//        public  ReminderItem generateDummyData() {
+//            return new ReminderItem("1", "2", "3", "4", "5", "6");
+//        }
 
         // Generate real data for each item
         public List<ReminderItem> generateData(int count) {
@@ -440,6 +459,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Initialize lists
             List<String> Titles = new ArrayList<>();
+            List<String> Dosages = new ArrayList<>();
             List<String> Repeats = new ArrayList<>();
             List<String> RepeatNos = new ArrayList<>();
             List<String> RepeatTypes = new ArrayList<>();
@@ -447,16 +467,19 @@ public class MainActivity extends AppCompatActivity {
             List<String> DateAndTime = new ArrayList<>();
             List<Integer> IDList= new ArrayList<>();
             List<DateTimeSorter> DateTimeSortList = new ArrayList<>();
+            List<String> Images = new ArrayList<>();
 
             // Add details of all reminders in their respective lists
             for (Reminder r : reminders) {
                 Titles.add(r.getTitle());
+                Dosages.add(r.getDosage());
                 DateAndTime.add(r.getDate() + " " + r.getTime());
                 Repeats.add(r.getRepeat());
                 RepeatNos.add(r.getRepeatNo());
                 RepeatTypes.add(r.getRepeatType());
                 Actives.add(r.getActive());
                 IDList.add(r.getID());
+                Images.add(r.getImage());
             }
 
             int key = 0;
@@ -476,8 +499,8 @@ public class MainActivity extends AppCompatActivity {
             for (DateTimeSorter item:DateTimeSortList) {
                 int i = item.getIndex();
 
-                items.add(new SimpleAdapter.ReminderItem(Titles.get(i), DateAndTime.get(i), Repeats.get(i),
-                        RepeatNos.get(i), RepeatTypes.get(i), Actives.get(i)));
+                items.add(new SimpleAdapter.ReminderItem(Titles.get(i), Dosages.get(i), DateAndTime.get(i), Repeats.get(i),
+                        RepeatNos.get(i), RepeatTypes.get(i), Actives.get(i), Images.get(i)));
                 IDmap.put(k, IDList.get(i));
                 k++;
             }

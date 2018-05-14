@@ -28,9 +28,12 @@ public class Reminder {
     private String mRepeatNo;
     private String mRepeatType;
     private String mActive;
+    private String mImage;
 
 
-    public Reminder(int ID, String Title, String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active){
+
+
+    public Reminder(int ID, String Title, String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active, String Image){
         mID = ID;
         mTitle = Title;
         mDosage = Dosage;
@@ -40,9 +43,11 @@ public class Reminder {
         mRepeatNo = RepeatNo;
         mRepeatType = RepeatType;
         mActive = Active;
+        mImage = Image;
+
     }
 
-    public Reminder(String Title,String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active){
+    public Reminder(String Title,String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active, String Image){
         mTitle = Title;
         mDosage = Dosage;
         mDate = Date;
@@ -51,6 +56,7 @@ public class Reminder {
         mRepeatNo = RepeatNo;
         mRepeatType = RepeatType;
         mActive = Active;
+        mImage = Image;
     }
 
     public Reminder(){}
@@ -121,5 +127,25 @@ public class Reminder {
 
     public void setActive(String active) {
         mActive = active;
+    }
+
+    public String getImage() {return mImage;}
+
+    public void setImage(String image) {mImage = image;}
+
+    @Override
+    public String toString() {
+        return "Reminder{" +
+                "mID=" + mID +
+                ", mTitle='" + mTitle + '\'' +
+                ", mDosage='" + mDosage + '\'' +
+                ", mDate='" + mDate + '\'' +
+                ", mTime='" + mTime + '\'' +
+                ", mRepeat='" + mRepeat + '\'' +
+                ", mRepeatNo='" + mRepeatNo + '\'' +
+                ", mRepeatType='" + mRepeatType + '\'' +
+                ", mActive='" + mActive + '\'' +
+                ", mImage='" + mImage + '\'' +
+                '}';
     }
 }
