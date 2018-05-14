@@ -59,8 +59,7 @@ public class BootReceiver extends BroadcastReceiver {
             mCalendar = Calendar.getInstance();
             mAlarmReceiver = new AlarmReceiver();
 
-            List<Reminder> reminders = rb.getAllReminders(user.getEmail());
-
+            List<Reminder> reminders = rb.getAllReminders();
             for (Reminder rm : reminders) {
                 mReceivedID = rm.getID();
                 mRepeat = rm.getRepeat();
@@ -105,9 +104,61 @@ public class BootReceiver extends BroadcastReceiver {
                 // Create a new notification
                 if (mActive.equals("true")) {
                     if (mRepeat.equals("true")) {
-                        mAlarmReceiver.setRepeatAlarm(context, mCalendar, mReceivedID, mRepeatTime);
+                        mAlarmReceiver.setRepeatAlarm(context, mCalendar, mReceivedID, mRepeatTime,0);
                     } else if (mRepeat.equals("false")) {
-                        mAlarmReceiver.setAlarm(context, mCalendar, mReceivedID);
+                        mAlarmReceiver.setAlarm(context, mCalendar, mReceivedID,0);
+                    }
+                }
+            }
+
+            List<Doctor> doctors = rb.getAllDoctor();
+            for (Doctor rm : doctors) {
+                mReceivedID = rm.getID();
+                mRepeat = rm.getRepeat();
+                mRepeatNo = rm.getRepeatNo();
+                mRepeatType = rm.getRepeatType();
+                mActive = rm.getActive();
+                mDate = rm.getDate();
+                mTime = rm.getTime();
+
+                mDateSplit = mDate.split("/");
+                mTimeSplit = mTime.split(":");
+
+                mDay = Integer.parseInt(mDateSplit[0]);
+                mMonth = Integer.parseInt(mDateSplit[1]);
+                mYear = Integer.parseInt(mDateSplit[2]);
+                mHour = Integer.parseInt(mTimeSplit[0]);
+                mMinute = Integer.parseInt(mTimeSplit[1]);
+
+                mCalendar.set(Calendar.MONTH, --mMonth);
+                mCalendar.set(Calendar.YEAR, mYear);
+                mCalendar.set(Calendar.DAY_OF_MONTH, mDay);
+                mCalendar.set(Calendar.HOUR_OF_DAY, mHour);
+                mCalendar.set(Calendar.MINUTE, mMinute);
+                mCalendar.set(Calendar.SECOND, 0);
+
+                // Cancel existing notification of the reminder by using its ID
+                // mAlarmReceiver.cancelAlarm(context, mReceivedID);
+
+                // Check repeat type
+                if (mRepeatType.equals("Minute")) {
+                    mRepeatTime = Integer.parseInt(mRepeatNo) * milMinute;
+                } else if (mRepeatType.equals("Hour")) {
+                    mRepeatTime = Integer.parseInt(mRepeatNo) * milHour;
+                } else if (mRepeatType.equals("Day")) {
+                    mRepeatTime = Integer.parseInt(mRepeatNo) * milDay;
+                } else if (mRepeatType.equals("Week")) {
+                    mRepeatTime = Integer.parseInt(mRepeatNo) * milWeek;
+                } else if (mRepeatType.equals("Month")) {
+                    mRepeatTime = Integer.parseInt(mRepeatNo) * milMonth;
+                }
+
+                // Create a new notification
+                if (mActive.equals("true")) {
+                    if (mRepeat.equals("true")) {
+                        mAlarmReceiver.setRepeatAlarm(context, mCalendar, mReceivedID, mRepeatTime,1);
+                    } else if (mRepeat.equals("false")) {
+                        mAlarmReceiver.setAlarm(context, mCalendar, mReceivedID,1);
                     }
                 }
             }

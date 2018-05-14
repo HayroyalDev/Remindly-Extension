@@ -27,13 +27,15 @@
                 android:id="@+id/sign_in"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sign In" />
+                android:text="Sign In"
+                android:layout_margin="10dp"/>
 
             <Button
                 android:id="@+id/sign_up"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Sign Up"
+                android:layout_margin="10dp"
                 />
         </LinearLayout>
 

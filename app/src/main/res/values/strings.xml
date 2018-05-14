@@ -1,5 +1,3 @@
-
-
 <resources>
 
     <string name="app_name">Medication Reminder</string>
@@ -500,5 +498,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_doctor">DoctorActivity</string>
+    <string name="title_activity_doctor_add">DoctorAddActivity</string>
 
 </resources>

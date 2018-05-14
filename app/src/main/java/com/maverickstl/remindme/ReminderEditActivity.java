@@ -527,9 +527,9 @@ public class ReminderEditActivity extends AppCompatActivity implements
         // Create a new notification
         if (mActive.equals("true")) {
             if (mRepeat.equals("true")) {
-                mAlarmReceiver.setRepeatAlarm(getApplicationContext(), mCalendar, mReceivedID, mRepeatTime);
+                mAlarmReceiver.setRepeatAlarm(getApplicationContext(), mCalendar, mReceivedID, mRepeatTime,0);
             } else if (mRepeat.equals("false")) {
-                mAlarmReceiver.setAlarm(getApplicationContext(), mCalendar, mReceivedID);
+                mAlarmReceiver.setAlarm(getApplicationContext(), mCalendar, mReceivedID, 0);
             }
         }
 

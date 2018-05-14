@@ -4,7 +4,11 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import com.google.gson.Gson
 
 import kotlinx.android.synthetic.main.activity_login.*
@@ -65,9 +69,23 @@ class LoginActivity : AppCompatActivity(){
             u.password = pas
             it.add(u)
             appPreference!!.setUsers(it)
-            startActivity(Intent(this, MainActivity::class.java).apply {
-                putExtra("session",Gson().toJson(u))
-            })
+            var dialog = AlertDialog.Builder(this).create()
+            val v = LayoutInflater.from(this).inflate(R.layout.select_type, null)
+            v.findViewById<TextView>(R.id.medication).setOnClickListener {
+                dialog.dismiss()
+                startActivity(Intent(this, MainActivity::class.java).apply {
+                    putExtra("session",Gson().toJson(u))
+                })
+            }
+            v.findViewById<TextView>(R.id.doctor).setOnClickListener {
+                dialog.dismiss()
+                startActivity(Intent(this, DoctorActivity::class.java).apply {
+                    putExtra("session",Gson().toJson(u))
+                })
+            }
+            dialog.setCanceledOnTouchOutside(false)
+            dialog.setView(v)
+            dialog.show()
             return@let
         }
     }
@@ -79,9 +97,23 @@ class LoginActivity : AppCompatActivity(){
             allUser?.let{
                 allUser?.forEach { u ->
                     if(u.email!!.equals(em, true) && u.password!!.equals(pas, true)){
-                        startActivity(Intent(this, MainActivity::class.java).apply {
-                            putExtra("session",Gson().toJson(u))
-                        })
+                        var dialog = AlertDialog.Builder(this).create()
+                        val v = LayoutInflater.from(this).inflate(R.layout.select_type, null)
+                        v.findViewById<TextView>(R.id.medication).setOnClickListener {
+                            dialog.dismiss()
+                            startActivity(Intent(this, MainActivity::class.java).apply {
+                                putExtra("session",Gson().toJson(u))
+                            })
+                        }
+                        v.findViewById<TextView>(R.id.doctor).setOnClickListener {
+                            dialog.dismiss()
+                            startActivity(Intent(this, DoctorActivity::class.java).apply {
+                                putExtra("session",Gson().toJson(u))
+                            })
+                        }
+                        dialog.setCanceledOnTouchOutside(false)
+                        dialog.setView(v)
+                        dialog.show()
                         return@let
                     }
                 }

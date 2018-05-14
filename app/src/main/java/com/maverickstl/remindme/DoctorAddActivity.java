@@ -54,17 +54,16 @@ import java.lang.reflect.Type;
 import java.util.Calendar;
 
 
-public class ReminderAddActivity extends AppCompatActivity implements
+public class DoctorAddActivity extends AppCompatActivity implements
         TimePickerDialog.OnTimeSetListener,
         DatePickerDialog.OnDateSetListener{
 
     private Toolbar mToolbar;
-    private EditText mTitleText, mDosageText;
+    private EditText mTitleText, mHosText;
     private TextView mDateText, mTimeText, mRepeatText, mRepeatNoText, mRepeatTypeText;
     private FloatingActionButton mFAB1;
     private FloatingActionButton mFAB2;
     private Calendar mCalendar;
-    private ImageView mImageView;
     private int mYear, mMonth, mHour, mMinute, mDay;
     private long mRepeatTime;
     private String mTitle;
@@ -74,12 +73,11 @@ public class ReminderAddActivity extends AppCompatActivity implements
     private String mRepeatNo;
     private String mRepeatType;
     private String mActive;
-    private String mImage;
-    private String mDosage;
+    private String mHos;
 
     // Values for orientation change
     private static final String KEY_TITLE = "title_key";
-    private static final String KEY_DOSAGE = "dosage_key";
+    private static final String KEY_HOS = "hos_key";
     private static final String KEY_TIME = "time_key";
     private static final String KEY_DATE = "date_key";
     private static final String KEY_REPEAT = "repeat_key";
@@ -91,8 +89,6 @@ public class ReminderAddActivity extends AppCompatActivity implements
 
 
     private static final int PICK_IMAGE_VALUE = 2;
-    RelativeLayout rimage;
-
     // Constant values in milliseconds
     private static final long milMinute = 60000L;
     private static final long milHour = 3600000L;
@@ -106,7 +102,7 @@ public class ReminderAddActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_reminder);
+        setContentView(R.layout.activity_doctor_add);
 
         Type listType = new TypeToken<User>() {
         }.getType();
@@ -116,33 +112,18 @@ public class ReminderAddActivity extends AppCompatActivity implements
         // Initialize Views
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mTitleText = (EditText) findViewById(R.id.reminder_title);
-        mDosageText = findViewById(R.id.set_dosage);
         mDateText = (TextView) findViewById(R.id.set_date);
         mTimeText = (TextView) findViewById(R.id.set_time);
         mRepeatText = (TextView) findViewById(R.id.set_repeat);
         mRepeatNoText = (TextView) findViewById(R.id.set_repeat_no);
         mRepeatTypeText = (TextView) findViewById(R.id.set_repeat_type);
-        mDosageText = findViewById(R.id.set_dosage);
-        mImageView = findViewById(R.id.selected_image);
-        rimage = findViewById(R.id.image_layout);
-        rimage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickImage();
-            }
-        });
-        mImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickImage();
-            }
-        });
+        mHosText = findViewById(R.id.set_hospital);
         mFAB1 = (FloatingActionButton) findViewById(R.id.starred1);
         mFAB2 = (FloatingActionButton) findViewById(R.id.starred2);
 
         // Setup Toolbar
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(R.string.title_activity_add_reminder);
+        getSupportActionBar().setTitle("Add Doctor's Reminder");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -178,7 +159,7 @@ public class ReminderAddActivity extends AppCompatActivity implements
             public void afterTextChanged(Editable s) {}
         });
 
-        mDosageText.addTextChangedListener(new TextWatcher() {
+        mHosText.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -187,8 +168,8 @@ public class ReminderAddActivity extends AppCompatActivity implements
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mDosage = s.toString().trim();
-                mDosageText.setError(null);
+                mHos = s.toString().trim();
+                mHosText.setError(null);
             }
 
             @Override
@@ -210,9 +191,9 @@ public class ReminderAddActivity extends AppCompatActivity implements
             mTitleText.setText(savedTitle);
             mTitle = savedTitle;
 
-            String savedDosage = savedInstanceState.getString(KEY_DOSAGE);
-            mDosageText.setText(savedDosage);
-            mDosage = savedDosage;
+            String savedHos = savedInstanceState.getString(KEY_HOS);
+            mHosText.setText(savedHos);
+            mHos = savedHos;
 
 
             String savedTime = savedInstanceState.getString(KEY_TIME);
@@ -236,15 +217,6 @@ public class ReminderAddActivity extends AppCompatActivity implements
             mRepeatType = savedRepeatType;
 
             mActive = savedInstanceState.getString(KEY_ACTIVE);
-
-            String savedImage = savedInstanceState.getString(KEY_IMAGE);
-            Bitmap bitmap = new ImageSaver(this).
-                    setFileName(savedImage).
-                    setDirectoryName("images").
-                    load();
-            mImageView.setImageBitmap(bitmap);
-            mImage = savedImage;
-
 
         }
 
@@ -271,42 +243,8 @@ public class ReminderAddActivity extends AppCompatActivity implements
         outState.putCharSequence(KEY_REPEAT_NO, mRepeatNoText.getText());
         outState.putCharSequence(KEY_REPEAT_TYPE, mRepeatTypeText.getText());
         outState.putCharSequence(KEY_ACTIVE, mActive);
-        outState.putCharSequence(KEY_DOSAGE, mDosageText.getText());
-        outState.putCharSequence(KEY_IMAGE, mImage);
+        outState.putCharSequence(KEY_HOS, mHosText.getText());
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PICK_IMAGE_VALUE && data != null) {
-            //TODO: action
-            try{
-                Log.e(TAG, "Here");
-                Log.e(TAG, data.getData().toString());
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                Cursor cursor = getContentResolver().query(selectedImage,
-                        filePathColumn, null, null, null);
-                cursor.moveToFirst();
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String picturePath = cursor.getString(columnIndex);
-                cursor.close();
-                ImageView imv = findViewById(R.id.selected_image);
-                imv.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                imv.setVisibility(View.VISIBLE);
-                File f = new File(picturePath);
-                String imageName = f.getName();
-                Toast.makeText(getApplicationContext(), "BBB"+imageName,Toast.LENGTH_LONG).show();
-                mImage = imageName;
-                new ImageSaver(this).
-                        setFileName(mImage).
-                        setDirectoryName("images").
-                        save(BitmapFactory.decodeFile(picturePath));
-            }catch(Exception ex){
-                Toast.makeText(this, " Unable to pick picture", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
 
     // On clicking Time picker
     public void setTime(View v){
@@ -458,7 +396,7 @@ public class ReminderAddActivity extends AppCompatActivity implements
         ReminderDatabase rb = new ReminderDatabase(this);
 
         // Creating Reminder
-        int ID = rb.addReminder(new Reminder(mTitle, mDosage, mDate, mTime, mRepeat, mRepeatNo, mRepeatType, mActive, mImage, user.getEmail()));
+        int ID = rb.addDoctor(new Doctor(user.getEmail(), mTitle, mHos, mDate, mTime, mRepeat, mRepeatNo, mRepeatType, mActive));
 
         // Set up calender for creating the notification
         mCalendar.set(Calendar.MONTH, --mMonth);
@@ -484,9 +422,9 @@ public class ReminderAddActivity extends AppCompatActivity implements
         // Create a new notification
         if (mActive.equals("true")) {
             if (mRepeat.equals("true")) {
-                new AlarmReceiver().setRepeatAlarm(getApplicationContext(), mCalendar, ID, mRepeatTime,0);
+                new AlarmReceiver().setRepeatAlarm(getApplicationContext(), mCalendar, ID, mRepeatTime,1);
             } else if (mRepeat.equals("false")) {
-                new AlarmReceiver().setAlarm(getApplicationContext(), mCalendar, ID,0);
+                new AlarmReceiver().setAlarm(getApplicationContext(), mCalendar, ID,1);
             }
         }
 
@@ -528,8 +466,8 @@ public class ReminderAddActivity extends AppCompatActivity implements
 
                 if (mTitleText.getText().toString().length() == 0)
                     mTitleText.setError("Medication name cannot be blank!");
-                else if(mDosageText.getText().toString().length() == 0)
-                    mDosageText.setError("Dosage cannot be Blank");
+                else if(mHosText.getText().toString().length() == 0)
+                    mHosText.setError("Hospital cannot be Blank");
                 else {
                     saveReminder();
                 }

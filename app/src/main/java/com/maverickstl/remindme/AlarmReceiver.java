@@ -41,16 +41,31 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         int mReceivedID = Integer.parseInt(intent.getStringExtra(ReminderEditActivity.EXTRA_REMINDER_ID));
+        int mType = Integer.parseInt(intent.getStringExtra("type"));
+        String mTitle;
+        PendingIntent mClick;
+        if(mType == 0){
+            ReminderDatabase rb = new ReminderDatabase(context);
+            Reminder reminder = rb.getReminder(mReceivedID);
+            mTitle = reminder.getTitle();
+            // Create intent to open ReminderEditActivity on notification click
+            Intent editIntent = new Intent(context, ReminderEditActivity.class);
+            editIntent.putExtra(ReminderEditActivity.EXTRA_REMINDER_ID, Integer.toString(mReceivedID));
+            mClick = PendingIntent.getActivity(context, mReceivedID, editIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }else{
+            ReminderDatabase rb = new ReminderDatabase(context);
+            Doctor reminder = rb.getDoctor(mReceivedID);
+            mTitle = reminder.getPurpose();
+            // Create intent to open ReminderEditActivity on notification click
+            Intent editIntent = new Intent(context, DoctorEditActivity.class);
+            editIntent.putExtra(ReminderEditActivity.EXTRA_REMINDER_ID, Integer.toString(mReceivedID));
+            mClick = PendingIntent.getActivity(context, mReceivedID, editIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        }
         // Get notification title from Reminder Database
-        ReminderDatabase rb = new ReminderDatabase(context);
-        Reminder reminder = rb.getReminder(mReceivedID);
-        String mTitle = reminder.getTitle();
 
-        // Create intent to open ReminderEditActivity on notification click
-        Intent editIntent = new Intent(context, ReminderEditActivity.class);
-        editIntent.putExtra(ReminderEditActivity.EXTRA_REMINDER_ID, Integer.toString(mReceivedID));
-        PendingIntent mClick = PendingIntent.getActivity(context, mReceivedID, editIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
 
         // Create Notification
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
@@ -68,12 +83,13 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         nManager.notify(mReceivedID, mBuilder.build());
     }
 
-    public void setAlarm(Context context, Calendar calendar, int ID) {
+    public void setAlarm(Context context, Calendar calendar, int ID, int type) {
         mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         // Put Reminder ID in Intent Extra
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra(ReminderEditActivity.EXTRA_REMINDER_ID, Integer.toString(ID));
+        intent.putExtra("type", Integer.toString(type));
         mPendingIntent = PendingIntent.getBroadcast(context, ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Calculate notification time
@@ -94,12 +110,13 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
                 PackageManager.DONT_KILL_APP);
     }
 
-    public void setRepeatAlarm(Context context, Calendar calendar, int ID, long RepeatTime) {
+    public void setRepeatAlarm(Context context, Calendar calendar, int ID, long RepeatTime, int type) {
         mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         // Put Reminder ID in Intent Extra
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra(ReminderEditActivity.EXTRA_REMINDER_ID, Integer.toString(ID));
+        intent.putExtra("type", Integer.toString(type));
         mPendingIntent = PendingIntent.getBroadcast(context, ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Calculate notification timein
