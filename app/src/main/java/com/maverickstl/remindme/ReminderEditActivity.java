@@ -15,7 +15,7 @@
  */
 
 
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

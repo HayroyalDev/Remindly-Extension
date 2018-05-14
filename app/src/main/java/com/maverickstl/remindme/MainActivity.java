@@ -15,7 +15,7 @@
  */
 
 
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,7 +42,10 @@ import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private ReminderDatabase rb;
     private MultiSelector mMultiSelector = new MultiSelector();
     private AlarmReceiver mAlarmReceiver;
-
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +75,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize reminder database
         rb = new ReminderDatabase(getApplicationContext());
-
+        Type listType = new TypeToken<User>() {
+        }.getType();
+        user =  new Gson().fromJson(getIntent().getStringExtra("session"), listType);
+        Log.e("MainAc", user.toString());
         // Initialize views
         mToolbar = findViewById(R.id.toolbar);
         mAddReminderButton =  findViewById(R.id.add_reminder);
@@ -80,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         // To check is there are saved reminders
         // If there are no reminders display a message asking the user to create reminders
-        List<Reminder> mTest = rb.getAllReminders();
+        List<Reminder> mTest = rb.getAllReminders(user.getEmail());
 
         if (mTest.isEmpty()) {
             mNoReminderView.setVisibility(View.VISIBLE);
@@ -102,12 +109,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), ReminderAddActivity.class);
+                intent.putExtra("session", new Gson().toJson(user));
                 startActivity(intent);
             }
         });
 
         // Initialize alarm
         mAlarmReceiver = new AlarmReceiver();
+
     }
 
     // Create context menu for long press actions
@@ -163,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // To check is there are saved reminders
                     // If there are no reminders display a message asking the user to create reminders
-                    List<Reminder> mTest = rb.getAllReminders();
+                    List<Reminder> mTest = rb.getAllReminders(user.getEmail());
 
                     if (mTest.isEmpty()) {
                         mNoReminderView.setVisibility(View.VISIBLE);
@@ -212,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
         // To check is there are saved reminders
         // If there are no reminders display a message asking the user to create reminders
-        List<Reminder> mTest = rb.getAllReminders();
+        List<Reminder> mTest = rb.getAllReminders(user.getEmail());
 
         if (mTest.isEmpty()) {
             mNoReminderView.setVisibility(View.VISIBLE);
@@ -455,7 +464,8 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<SimpleAdapter.ReminderItem> items = new ArrayList<>();
 
             // Get all reminders from the database
-            List<Reminder> reminders = rb.getAllReminders();
+            List<Reminder> reminders = rb.getAllReminders(user.getEmail());
+            Log.e("TAG", reminders.toString());
 
             // Initialize lists
             List<String> Titles = new ArrayList<>();

@@ -15,7 +15,7 @@
  */
 
 
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -40,6 +40,7 @@ public class ReminderDatabase extends SQLiteOpenHelper {
 
     // Table Columns names
     private static final String KEY_ID = "id";
+    private static final String KEY_EMAIL = "email";
     private static final String KEY_TITLE = "title";
     private static final String KEY_DATE = "date";
     private static final String KEY_DOSAGE = "dosage";
@@ -68,7 +69,8 @@ public class ReminderDatabase extends SQLiteOpenHelper {
                 + KEY_REPEAT_NO + " INTEGER,"
                 + KEY_REPEAT_TYPE + " TEXT,"
                 + KEY_ACTIVE + " BOOLEAN,"
-                + KEY_IMAGE + " TEXT" + ")";
+                + KEY_IMAGE + " TEXT,"
+                + KEY_EMAIL + " TEXT" + ")";
         db.execSQL(CREATE_REMINDERS_TABLE);
     }
 
@@ -89,6 +91,7 @@ public class ReminderDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
+        values.put(KEY_EMAIL , reminder.getEmail());
         values.put(KEY_TITLE , reminder.getTitle());
         values.put(KEY_DOSAGE , reminder.getDosage());
         values.put(KEY_DATE , reminder.getDate());
@@ -121,7 +124,8 @@ public class ReminderDatabase extends SQLiteOpenHelper {
                                 KEY_REPEAT_NO,
                                 KEY_REPEAT_TYPE,
                                 KEY_ACTIVE,
-                                KEY_IMAGE
+                                KEY_IMAGE,
+                                KEY_EMAIL
                         }, KEY_ID + "=?",
 
                 new String[] {String.valueOf(id)}, null, null, null, null);
@@ -131,17 +135,17 @@ public class ReminderDatabase extends SQLiteOpenHelper {
 
         Reminder reminder = new Reminder(Integer.parseInt(cursor.getString(0)), cursor.getString(1),
                cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),
-                cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getString(9));
+                cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getString(9), cursor.getString(10));
 
         return reminder;
     }
 
     // Getting all Reminders
-    public List<Reminder> getAllReminders(){
+    public List<Reminder> getAllReminders(String email){
         List<Reminder> reminderList = new ArrayList<>();
 
         // Select all Query
-        String selectQuery = "SELECT * FROM " + TABLE_REMINDERS;
+        String selectQuery = "SELECT * FROM " + TABLE_REMINDERS + " where email = '" + email + "'";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -160,6 +164,7 @@ public class ReminderDatabase extends SQLiteOpenHelper {
                 reminder.setRepeatType(cursor.getString(7));
                 reminder.setActive(cursor.getString(8));
                 reminder.setImage(cursor.getString(9));
+                reminder.setEmail(cursor.getString(10));
 
                 // Adding Reminders to list
                 reminderList.add(reminder);
@@ -191,7 +196,7 @@ public class ReminderDatabase extends SQLiteOpenHelper {
         values.put(KEY_REPEAT_TYPE, reminder.getRepeatType());
         values.put(KEY_ACTIVE, reminder.getActive());
         values.put(KEY_IMAGE, reminder.getImage());
-
+        values.put(KEY_EMAIL, reminder.getEmail());
         // Updating row
         return db.update(TABLE_REMINDERS, values, KEY_ID + "=?",
                 new String[]{String.valueOf(reminder.getID())});

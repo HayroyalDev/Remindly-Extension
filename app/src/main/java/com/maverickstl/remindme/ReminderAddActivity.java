@@ -15,7 +15,7 @@
  */
 
 
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -43,11 +43,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.Calendar;
 
 
@@ -96,6 +99,7 @@ public class ReminderAddActivity extends AppCompatActivity implements
     private static final long milDay = 86400000L;
     private static final long milWeek = 604800000L;
     private static final long milMonth = 2592000000L;
+    private User user;
 
     String TAG = "Add Reminder";
 
@@ -103,6 +107,11 @@ public class ReminderAddActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_reminder);
+
+        Type listType = new TypeToken<User>() {
+        }.getType();
+        user =  new Gson().fromJson(getIntent().getStringExtra("session"), listType);
+        Log.e("Add", user.toString());
 
         // Initialize Views
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -449,7 +458,7 @@ public class ReminderAddActivity extends AppCompatActivity implements
         ReminderDatabase rb = new ReminderDatabase(this);
 
         // Creating Reminder
-        int ID = rb.addReminder(new Reminder(mTitle, mDosage, mDate, mTime, mRepeat, mRepeatNo, mRepeatType, mActive, mImage));
+        int ID = rb.addReminder(new Reminder(mTitle, mDosage, mDate, mTime, mRepeat, mRepeatNo, mRepeatType, mActive, mImage, user.getEmail()));
 
         // Set up calender for creating the notification
         mCalendar.set(Calendar.MONTH, --mMonth);

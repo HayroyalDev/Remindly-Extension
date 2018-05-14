@@ -15,35 +15,14 @@
  */
 
 
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
-// Class to create DateTime objects for easy sorting
-public class DateTimeSorter {
-    public int mIndex;
-    public String mDateTime;
+import android.app.Application;
+import android.test.ApplicationTestCase;
 
 
-    public DateTimeSorter(int index, String DateTime){
-        mIndex = index;
-        mDateTime = DateTime;
-    }
-
-    public DateTimeSorter(){}
-
-
-    public int getIndex() {
-        return mIndex;
-    }
-
-    public void setIndex(int index) {
-        mIndex = index;
-    }
-
-    public String getDateTime() {
-        return mDateTime;
-    }
-
-    public void setDateTime(String dateTime) {
-        mDateTime = dateTime;
+public class ApplicationTest extends ApplicationTestCase<Application> {
+    public ApplicationTest() {
+        super(Application.class);
     }
 }

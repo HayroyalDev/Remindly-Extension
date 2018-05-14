@@ -15,7 +15,7 @@
  */
 
 
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,6 +42,7 @@ public class BootReceiver extends BroadcastReceiver {
     private Calendar mCalendar;
     private AlarmReceiver mAlarmReceiver;
 
+    private User user;
     // Constant values in milliseconds
     private static final long milMinute = 60000L;
     private static final long milHour = 3600000L;
@@ -58,7 +59,7 @@ public class BootReceiver extends BroadcastReceiver {
             mCalendar = Calendar.getInstance();
             mAlarmReceiver = new AlarmReceiver();
 
-            List<Reminder> reminders = rb.getAllReminders();
+            List<Reminder> reminders = rb.getAllReminders(user.getEmail());
 
             for (Reminder rm : reminders) {
                 mReceivedID = rm.getID();

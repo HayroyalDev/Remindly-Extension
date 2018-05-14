@@ -1,4 +1,4 @@
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Created by robot on 5/14/18.

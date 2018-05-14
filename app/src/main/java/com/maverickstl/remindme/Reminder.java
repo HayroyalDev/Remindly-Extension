@@ -15,10 +15,11 @@
  */
 
 
-package com.blanyal.remindme;
+package com.maverickstl.remindme;
 
 // Reminder class
 public class Reminder {
+    private String email;
     private int mID;
     private String mTitle;
     private String mDosage;
@@ -33,7 +34,8 @@ public class Reminder {
 
 
 
-    public Reminder(int ID, String Title, String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active, String Image){
+    public Reminder(int ID, String Title, String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active, String Image,String email){
+        this.email = email;
         mID = ID;
         mTitle = Title;
         mDosage = Dosage;
@@ -47,7 +49,17 @@ public class Reminder {
 
     }
 
-    public Reminder(String Title,String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active, String Image){
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Reminder(String Title, String Dosage, String Date, String Time, String Repeat, String RepeatNo, String RepeatType, String Active, String Image, String email){
+        this.email = email;
+
         mTitle = Title;
         mDosage = Dosage;
         mDate = Date;
@@ -60,6 +72,7 @@ public class Reminder {
     }
 
     public Reminder(){}
+
 
     public int getID() {
         return mID;
