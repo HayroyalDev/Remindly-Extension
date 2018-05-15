@@ -19,6 +19,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     buildToolsVersion "27.0.3"
+    ext.kotlin_version = '1.2.41'
     defaultConfig {
         applicationId "com.maverickstl.remindme"
         minSdkVersion 15
@@ -45,9 +46,9 @@ dependencies {
     compile 'com.wdullaer:materialdatetimepicker:1.2.1'
     compile 'com.bignerdranch.android:recyclerview-multiselect:+'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
+    //compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
     compile 'com.google.code.gson:gson:2.8.2'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 apply plugin: 'kotlin-android'
