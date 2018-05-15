@@ -89,6 +89,7 @@ public class DoctorActivity extends AppCompatActivity {
 
         // Setup toolbar
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setTitle("Doctor's Appointments");
         mToolbar.setTitle("Doctor's Appointment");
 
         // On clicking the floating action button
